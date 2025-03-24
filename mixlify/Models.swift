@@ -78,7 +78,7 @@ enum AttachmentType: Equatable {
     case location
 }
 
-struct Conversation: Identifiable {
+struct Conversation: Identifiable, Hashable {
     let id: UUID
     var contact: Contact
     var lastMessage: Message?
@@ -86,4 +86,12 @@ struct Conversation: Identifiable {
     var isPinned: Bool
     var isMuted: Bool
     var platforms: Set<MessagePlatform>
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    static func == (lhs: Conversation, rhs: Conversation) -> Bool {
+        lhs.id == rhs.id
+    }
 } 

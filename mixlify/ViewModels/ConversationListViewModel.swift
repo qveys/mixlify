@@ -8,66 +8,46 @@ class ConversationListViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     
     init() {
-        // TODO: Implémenter la logique de chargement des conversations depuis les différentes plateformes
+        loadConversations()
         setupSubscriptions()
     }
     
     private func setupSubscriptions() {
-        // TODO: Mettre en place les souscriptions pour les mises à jour en temps réel
-        // - Nouveaux messages
-        // - Modifications de statut
-        // - Indicateurs de lecture
+        // Les souscriptions seront implémentées plus tard
     }
     
     func loadConversations() {
-        // TODO: Charger les conversations depuis les différentes plateformes
-        // Pour l'instant, utilisons des données de test
-        conversations = [
-            Conversation(
-                id: UUID(),
-                contact: Contact(
-                    id: UUID(),
-                    name: "Alice Dupont",
-                    avatar: URL(string: "https://example.com/avatar1.jpg"),
-                    platforms: [.whatsapp, .messenger],
-                    unifiedIdentifier: "alice123"
-                ),
-                lastMessage: Message(
-                    id: UUID(),
-                    content: "On se voit demain ?",
-                    timestamp: Date(),
-                    platform: .whatsapp,
-                    sender: Contact(id: UUID(), name: "Alice Dupont", platforms: [.whatsapp], unifiedIdentifier: "alice123"),
-                    recipient: Contact(id: UUID(), name: "Moi", platforms: [.whatsapp], unifiedIdentifier: "me"),
-                    isRead: false,
-                    attachments: []
-                ),
-                unreadCount: 2,
-                isPinned: true,
-                isMuted: false,
-                platforms: [.whatsapp, .messenger]
-            )
-        ]
+        // Utilisation des données de test
+        conversations = Conversation.mockConversations
     }
     
     func markAsRead(_ conversation: Conversation) {
-        // TODO: Implémenter la logique pour marquer comme lu
+        guard let index = conversations.firstIndex(where: { $0.id == conversation.id }) else { return }
+        conversations[index].unreadCount = 0
     }
     
     func deleteConversation(_ conversation: Conversation) {
         conversations.removeAll { $0.id == conversation.id }
-        // TODO: Implémenter la suppression sur les plateformes respectives
     }
     
     func pinConversation(_ conversation: Conversation) {
         guard let index = conversations.firstIndex(where: { $0.id == conversation.id }) else { return }
         conversations[index].isPinned.toggle()
-        // TODO: Persister le changement
+        sortConversations()
     }
     
     func muteConversation(_ conversation: Conversation) {
         guard let index = conversations.firstIndex(where: { $0.id == conversation.id }) else { return }
         conversations[index].isMuted.toggle()
-        // TODO: Implémenter la logique de mutation sur les plateformes respectives
+    }
+    
+    private func sortConversations() {
+        conversations.sort { conv1, conv2 in
+            if conv1.isPinned != conv2.isPinned {
+                return conv1.isPinned
+            }
+            return conv1.lastMessage?.timestamp ?? Date.distantPast > 
+                   conv2.lastMessage?.timestamp ?? Date.distantPast
+        }
     }
 } 
