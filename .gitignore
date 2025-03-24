@@ -65,3 +65,7 @@ Package.resolved
 # AppCenter
 appcenter-pre-build.sh
 appcenter-post-clone.sh
+
+/.idea/
+/.vscode/
+/.cursor/
