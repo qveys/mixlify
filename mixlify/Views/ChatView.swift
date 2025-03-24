@@ -101,32 +101,20 @@ struct MessageBubble: View {
     let message: Message
     
     private var isFromCurrentUser: Bool {
-        // TODO: Implémenter la logique pour déterminer si le message vient de l'utilisateur actuel
-        return false
+        message.sender.unifiedIdentifier == "me"
     }
     
     var body: some View {
-        HStack {
-            if isFromCurrentUser { Spacer() }
+        HStack(alignment: .bottom, spacing: 0) {
+            if isFromCurrentUser { Spacer(minLength: 60) }
             
             VStack(alignment: isFromCurrentUser ? .trailing : .leading, spacing: 4) {
-                HStack {
-                    if !isFromCurrentUser {
-                        PlatformIndicator(platform: message.platform)
-                            .font(.caption)
-                    }
-                    
-                    Text(message.content)
-                        .padding(12)
-                        .background(isFromCurrentUser ? Color.blue : backgroundColor)
-                        .foregroundColor(isFromCurrentUser ? .white : .primary)
-                        .cornerRadius(16)
-                    
-                    if isFromCurrentUser {
-                        PlatformIndicator(platform: message.platform)
-                            .font(.caption)
-                    }
-                }
+                Text(message.content)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(isFromCurrentUser ? Color.accentColor : backgroundColor)
+                    .foregroundColor(isFromCurrentUser ? .white : .primary)
+                    .clipShape(ChatBubbleShape(isFromCurrentUser: isFromCurrentUser))
                 
                 if !message.attachments.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -140,19 +128,123 @@ struct MessageBubble: View {
                 
                 Text(message.timestamp, style: .time)
                     .font(.caption2)
-                    .foregroundColor(.gray)
+                    .foregroundColor(.secondary)
             }
             
-            if !isFromCurrentUser { Spacer() }
+            if !isFromCurrentUser { Spacer(minLength: 60) }
         }
+        .padding(.horizontal, 8)
     }
     
     private var backgroundColor: Color {
         #if os(iOS)
-        return Color(uiColor: .systemGray6)
+        return Color(uiColor: .systemGray5)
         #elseif os(macOS)
-        return Color(nsColor: .windowBackgroundColor)
+        return Color(nsColor: .controlBackgroundColor)
         #endif
+    }
+}
+
+struct ChatBubbleShape: Shape {
+    let isFromCurrentUser: Bool
+    
+    func path(in rect: CGRect) -> Path {
+        let width = rect.width
+        let height = rect.height
+        let radius: CGFloat = 16
+        let smallRadius: CGFloat = 16
+        
+        let path = Path { p in
+            if isFromCurrentUser {
+                // Démarrer depuis le coin supérieur gauche
+                p.move(to: CGPoint(x: 0, y: smallRadius))
+                
+                // Coin supérieur gauche
+                p.addArc(center: CGPoint(x: smallRadius, y: smallRadius),
+                        radius: smallRadius,
+                        startAngle: .degrees(180),
+                        endAngle: .degrees(270),
+                        clockwise: false)
+                
+                // Ligne supérieure
+                p.addLine(to: CGPoint(x: width - radius, y: 0))
+                
+                // Coin supérieur droit
+                p.addArc(center: CGPoint(x: width - radius, y: radius),
+                        radius: radius,
+                        startAngle: .degrees(270),
+                        endAngle: .degrees(0),
+                        clockwise: false)
+                
+                // Ligne droite
+                p.addLine(to: CGPoint(x: width, y: height - radius))
+                
+                // Coin inférieur droit
+                p.addArc(center: CGPoint(x: width - radius, y: height - radius),
+                        radius: radius,
+                        startAngle: .degrees(0),
+                        endAngle: .degrees(90),
+                        clockwise: false)
+                
+                // Ligne inférieure
+                p.addLine(to: CGPoint(x: smallRadius, y: height))
+                
+                // Coin inférieur gauche
+                p.addArc(center: CGPoint(x: smallRadius, y: height - smallRadius),
+                        radius: smallRadius,
+                        startAngle: .degrees(90),
+                        endAngle: .degrees(180),
+                        clockwise: false)
+                
+                // Ligne gauche
+                p.addLine(to: CGPoint(x: 0, y: smallRadius))
+            } else {
+                // Démarrer depuis le coin supérieur gauche
+                p.move(to: CGPoint(x: 0, y: radius))
+                
+                // Coin supérieur gauche
+                p.addArc(center: CGPoint(x: radius, y: radius),
+                        radius: radius,
+                        startAngle: .degrees(180),
+                        endAngle: .degrees(270),
+                        clockwise: false)
+                
+                // Ligne supérieure
+                p.addLine(to: CGPoint(x: width - smallRadius, y: 0))
+                
+                // Coin supérieur droit
+                p.addArc(center: CGPoint(x: width - smallRadius, y: smallRadius),
+                        radius: smallRadius,
+                        startAngle: .degrees(270),
+                        endAngle: .degrees(0),
+                        clockwise: false)
+                
+                // Ligne droite
+                p.addLine(to: CGPoint(x: width, y: height - smallRadius))
+                
+                // Coin inférieur droit
+                p.addArc(center: CGPoint(x: width - smallRadius, y: height - smallRadius),
+                        radius: smallRadius,
+                        startAngle: .degrees(0),
+                        endAngle: .degrees(90),
+                        clockwise: false)
+                
+                // Ligne inférieure
+                p.addLine(to: CGPoint(x: radius, y: height))
+                
+                // Coin inférieur gauche
+                p.addArc(center: CGPoint(x: radius, y: height - radius),
+                        radius: radius,
+                        startAngle: .degrees(90),
+                        endAngle: .degrees(180),
+                        clockwise: false)
+                
+                // Ligne gauche
+                p.addLine(to: CGPoint(x: 0, y: radius))
+            }
+        }
+        
+        return path
     }
 }
 

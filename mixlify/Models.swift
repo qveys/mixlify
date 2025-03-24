@@ -82,6 +82,7 @@ struct Conversation: Identifiable, Hashable {
     let id: UUID
     var contact: Contact
     var lastMessage: Message?
+    var messages: [Message]
     var unreadCount: Int
     var isPinned: Bool
     var isMuted: Bool

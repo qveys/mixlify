@@ -2,62 +2,17 @@ import Foundation
 import Combine
 
 class ChatViewModel: ObservableObject {
-    private let conversation: Conversation
     @Published var messages: [Message] = []
     @Published var showAttachmentPicker = false
     @Published var showContactDetails = false
     @Published var showDeleteAlert = false
     
+    private let conversation: Conversation
     private var cancellables = Set<AnyCancellable>()
     
     init(conversation: Conversation) {
         self.conversation = conversation
-        loadMessages()
-        setupSubscriptions()
-    }
-    
-    private func setupSubscriptions() {
-        // TODO: Mettre en place les souscriptions pour les mises à jour en temps réel
-        // - Nouveaux messages
-        // - Modifications de statut
-        // - Indicateurs de lecture
-    }
-    
-    private func loadMessages() {
-        // TODO: Charger les messages depuis les différentes plateformes
-        // Pour l'instant, utilisons des données de test
-        messages = [
-            Message(
-                id: UUID(),
-                content: "Salut ! Comment ça va ?",
-                timestamp: Date().addingTimeInterval(-3600),
-                platform: .whatsapp,
-                sender: conversation.contact,
-                recipient: Contact(id: UUID(), name: "Moi", platforms: [.whatsapp], unifiedIdentifier: "me"),
-                isRead: true,
-                attachments: []
-            ),
-            Message(
-                id: UUID(),
-                content: "Très bien et toi ?",
-                timestamp: Date().addingTimeInterval(-3500),
-                platform: .whatsapp,
-                sender: Contact(id: UUID(), name: "Moi", platforms: [.whatsapp], unifiedIdentifier: "me"),
-                recipient: conversation.contact,
-                isRead: true,
-                attachments: []
-            ),
-            Message(
-                id: UUID(),
-                content: "On se voit demain ?",
-                timestamp: Date(),
-                platform: .whatsapp,
-                sender: conversation.contact,
-                recipient: Contact(id: UUID(), name: "Moi", platforms: [.whatsapp], unifiedIdentifier: "me"),
-                isRead: false,
-                attachments: []
-            )
-        ]
+        self.messages = conversation.messages
     }
     
     func send(_ text: String) {
@@ -65,20 +20,18 @@ class ChatViewModel: ObservableObject {
             id: UUID(),
             content: text,
             timestamp: Date(),
-            platform: conversation.platforms.first ?? .whatsapp, // TODO: Permettre la sélection de la plateforme
+            platform: conversation.platforms.first ?? .messenger,
             sender: Contact(id: UUID(), name: "Moi", platforms: conversation.platforms, unifiedIdentifier: "me"),
             recipient: conversation.contact,
-            isRead: false,
+            isRead: true,
             attachments: []
         )
-        
         messages.append(newMessage)
-        
-        // TODO: Envoyer le message via la plateforme appropriée
+        // TODO: Implémenter l'envoi réel du message via l'API appropriée
     }
     
     func muteConversation() {
-        // TODO: Implémenter la logique de mise en sourdine
+        // TODO: Implémenter la mise en sourdine
     }
     
     func deleteConversation() {
