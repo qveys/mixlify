@@ -31,9 +31,21 @@ struct ForgotPasswordView: View {
                 .disabled(email.isEmpty)
             }
             .padding()
-            .navigationBarItems(trailing: Button("Cancel") {
-                dismiss()
-            })
+            .toolbar {
+                #if os(iOS)
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+                #else
+                ToolbarItem {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+                #endif
+            }
         }
     }
 } 

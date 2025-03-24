@@ -6,7 +6,7 @@ protocol ServiceProtocol {
 }
 
 extension ServiceProtocol {
-    func store<T: Publisher>(
+    mutating func store<T: Publisher>(
         _ publisher: T,
         completion: @escaping (T.Output) -> Void
     ) {
