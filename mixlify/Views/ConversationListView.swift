@@ -5,23 +5,23 @@ struct ConversationListView: View {
     @State private var searchText = ""
     
     var body: some View {
-        NavigationView {
-            List {
-                ForEach(filteredConversations) { conversation in
-                    NavigationLink(destination: ChatView(conversation: conversation)) {
-                        ConversationRow(conversation: conversation)
-                    }
+        List {
+            ForEach(filteredConversations) { conversation in
+                NavigationLink(value: conversation) {
+                    ConversationRow(conversation: conversation)
                 }
             }
-            .navigationTitle("Messages")
-            .searchable(text: $searchText, prompt: "Rechercher")
-            .toolbar {
-                ToolbarItemGroup {
-                    Button(action: { viewModel.showNewMessageSheet = true }) {
-                        Image(systemName: "square.and.pencil")
-                    }
+        }
+        .searchable(text: $searchText, prompt: "Rechercher")
+        .toolbar {
+            ToolbarItemGroup {
+                Button(action: { viewModel.showNewMessageSheet = true }) {
+                    Image(systemName: "square.and.pencil")
                 }
             }
+        }
+        .navigationDestination(for: Conversation.self) { conversation in
+            ChatView(conversation: conversation)
         }
     }
     
