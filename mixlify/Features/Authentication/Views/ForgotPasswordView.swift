@@ -4,9 +4,11 @@ struct ForgotPasswordView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var viewModel: AuthenticationViewModel
     @State private var email = ""
+    @State private var isFormValid = false
+    @State private var showingSuccessAlert = false
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack(spacing: 20) {
                 Text("Reset Password")
                     .font(.title2)
@@ -20,32 +22,49 @@ struct ForgotPasswordView: View {
                 AuthTextField(
                     title: "Email",
                     placeholder: "Enter your email",
-                    text: $email
+                    text: $email,
+                    validation: Validators.email
                 )
                 
                 Button("Send Reset Link") {
-                    viewModel.dispatch(AuthenticationViewModel.Action.resetPassword(email: email))
-                    dismiss()
+                    viewModel.dispatch(.resetPassword(email: email))
+                    showingSuccessAlert = true
                 }
                 .primaryButton()
-                .disabled(email.isEmpty)
+                .disabled(!isFormValid || viewModel.state == .authenticating)
+                
+                if case .authenticating = viewModel.state {
+                    ProgressView()
+                        .padding(.top)
+                }
+                
+                if case .error(let message) = viewModel.state {
+                    Text(message)
+                        .foregroundColor(.red)
+                        .font(.footnote)
+                }
             }
             .padding()
             .toolbar {
-                #if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
                         dismiss()
                     }
                 }
-                #else
-                ToolbarItem {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-                #endif
             }
+            .alert("Reset Link Sent", isPresented: $showingSuccessAlert) {
+                Button("OK") {
+                    dismiss()
+                }
+            } message: {
+                Text("Check your email for instructions to reset your password.")
+            }
+            .onChange(of: email) { validateForm() }
         }
+    }
+    
+    private func validateForm() {
+        let emailValidation = Validators.email(email)
+        isFormValid = emailValidation.isValid
     }
 } 
