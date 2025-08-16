@@ -1,0 +1,15 @@
+/* Authentication View */
+"profile" = "Mon Profil";
+"sign_in" = "Se connecter";
+"sign_up" = "S'inscrire";
+"cancel" = "Annuler";
+"create_account" = "Créer un compte";
+"connected_as" = "Connecté en tant que %@";
+"sign_out" = "Se déconnecter";
+
+/* Auth Errors */
+"error.invalid_email" = "L'adresse email n'est pas valide";
+"error.invalid_password" = "Le mot de passe doit contenir au moins 5 caractères";
+"error.invalid_display_name" = "Le nom d'affichage ne peut pas être vide";
+"error.session_expired" = "Votre session a expiré, veuillez vous reconnecter";
+"error.network" = "Une erreur réseau est survenue, veuillez réessayer"; 
