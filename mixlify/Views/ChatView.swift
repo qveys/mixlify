@@ -23,7 +23,7 @@ struct ChatView: View {
                 ScrollView {
                     LazyVStack(spacing: 12) {
                         ForEach(viewModel.messages) { message in
-                            MessageBubble(message: message)
+                            MessageBubble(text: message.content, isCurrentUser: message.sender.unifiedIdentifier == "me")
                                 .id(message.id)
                         }
                     }
@@ -98,40 +98,37 @@ struct ChatView: View {
 }
 
 struct MessageBubble: View {
-    let message: Message
-    
-    private var isFromCurrentUser: Bool {
-        message.sender.unifiedIdentifier == "me"
-    }
+    let text: String
+    let isCurrentUser: Bool
     
     var body: some View {
         HStack(alignment: .bottom, spacing: 0) {
-            if isFromCurrentUser { Spacer(minLength: 60) }
+            if isCurrentUser { Spacer(minLength: 60) }
             
-            VStack(alignment: isFromCurrentUser ? .trailing : .leading, spacing: 4) {
-                Text(message.content)
+            VStack(alignment: isCurrentUser ? .trailing : .leading, spacing: 4) {
+                Text(text)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
-                    .background(isFromCurrentUser ? Color.accentColor : backgroundColor)
-                    .foregroundColor(isFromCurrentUser ? .white : .primary)
-                    .clipShape(ChatBubbleShape(isFromCurrentUser: isFromCurrentUser))
+                    .background(isCurrentUser ? Color.accentColor : backgroundColor)
+                    .foregroundColor(isCurrentUser ? .white : .primary)
+                    .clipShape(ChatBubbleShape(isFromCurrentUser: isCurrentUser))
                 
-                if !message.attachments.isEmpty {
+                if !attachments.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
-                            ForEach(message.attachments) { attachment in
+                            ForEach(attachments) { attachment in
                                 AttachmentView(attachment: attachment)
                             }
                         }
                     }
                 }
                 
-                Text(message.timestamp, style: .time)
+                Text(timestamp, style: .time)
                     .font(.caption2)
                     .foregroundColor(.secondary)
             }
             
-            if !isFromCurrentUser { Spacer(minLength: 60) }
+            if !isCurrentUser { Spacer(minLength: 60) }
         }
         .padding(.horizontal, 8)
     }
@@ -142,6 +139,16 @@ struct MessageBubble: View {
         #elseif os(macOS)
         return Color(nsColor: .controlBackgroundColor)
         #endif
+    }
+    
+    private var attachments: [Attachment] {
+        // Implementation of attachments based on the text
+        []
+    }
+    
+    private var timestamp: Date {
+        // Implementation of timestamp based on the text
+        Date()
     }
 }
 

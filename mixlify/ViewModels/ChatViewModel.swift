@@ -1,44 +1,65 @@
 import Foundation
 import Combine
 
-class ChatViewModel: ObservableObject {
+final class ChatViewModel: ObservableObject {
     @Published var messages: [Message] = []
     @Published var showAttachmentPicker = false
     @Published var showContactDetails = false
     @Published var showDeleteAlert = false
+    @Published var error: String?
     
     private let conversation: Conversation
+    private let interactor: ConversationInteractorProtocol
     private var cancellables = Set<AnyCancellable>()
     
-    init(conversation: Conversation) {
+    init(conversation: Conversation, interactor: ConversationInteractorProtocol = ConversationInteractor()) {
         self.conversation = conversation
+        self.interactor = interactor
         self.messages = conversation.messages
+        
+        setupSubscriptions()
+    }
+    
+    private func setupSubscriptions() {
+        // Add any necessary subscriptions here
     }
     
     func send(_ text: String) {
-        let newMessage = Message(
-            id: UUID(),
-            content: text,
-            timestamp: Date(),
-            platform: conversation.platforms.first ?? .messenger,
-            sender: Contact(id: UUID(), name: "Moi", platforms: conversation.platforms, unifiedIdentifier: "me"),
-            recipient: conversation.contact,
-            isRead: true,
-            attachments: []
-        )
-        messages.append(newMessage)
-        // TODO: Implémenter l'envoi réel du message via l'API appropriée
+        interactor.sendMessage(text, in: conversation)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.error = error.localizedDescription
+                }
+            } receiveValue: { [weak self] message in
+                self?.messages.append(message)
+            }
+            .store(in: &cancellables)
     }
     
     func muteConversation() {
-        // TODO: Implémenter la mise en sourdine
+        interactor.muteConversation(conversation)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.error = error.localizedDescription
+                }
+            } receiveValue: { _ in }
+            .store(in: &cancellables)
     }
     
     func deleteConversation() {
-        // TODO: Implémenter la suppression de la conversation
+        interactor.deleteConversation(conversation)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                if case .failure(let error) = completion {
+                    self?.error = error.localizedDescription
+                }
+            } receiveValue: { _ in }
+            .store(in: &cancellables)
     }
     
     func addAttachment(_ url: URL, type: AttachmentType) {
-        // TODO: Implémenter l'ajout de pièces jointes
+        // TODO: Implement attachment handling through interactor
     }
 } 

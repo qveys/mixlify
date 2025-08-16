@@ -11,7 +11,7 @@ import SwiftUI
 struct mixlifyApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            AuthenticationView()
         }
     }
 }
