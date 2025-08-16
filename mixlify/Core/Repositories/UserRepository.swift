@@ -5,12 +5,9 @@ final class UserRepository: UserRepositoryProtocol {
     func getCurrentUser() -> AnyPublisher<User, Error> {
         // TODO: Implement actual user fetching logic
         let user = User(
-            id: UUID().uuidString,
+            id: UUID(),
             email: "user@example.com",
-            displayName: "Test User",
-            profileImageURL: nil,
-            createdAt: Date(),
-            updatedAt: Date()
+            name: "Test User"
         )
         return Just(user)
             .setFailureType(to: Error.self)
